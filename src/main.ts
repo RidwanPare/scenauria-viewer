@@ -1,22 +1,25 @@
 import './style.css';
+import { mountViewer } from './viewer';
+import { trackVisit } from './analytics';
 
 const params = new URLSearchParams(window.location.search);
 const sceneUrl = params.get('scene');
 const visitId = params.get('visitId');
+const posterUrl = params.get('poster');
+
+const app = document.getElementById('app')!;
 
 if (!sceneUrl) {
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-    <div style="color: red; padding: 2rem;">
-      Paramètre <code>scene</code> manquant dans l'URL.
+  app.innerHTML = `
+    <div id="error-screen">
+      Paramètre <strong>scene</strong> manquant dans l'URL.
+      <code>?scene=https://cdn.example.com/scene.compressed.ply</code>
     </div>
   `;
 } else {
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-    <div id="viewer-container">
-      <p>Chargement de la visite...</p>
-    </div>
-  `;
-  import('./viewer').then(({ initViewer }) => {
-    initViewer(sceneUrl, visitId ?? undefined);
-  });
+  mountViewer(app, { sceneUrl, posterUrl, visitId });
+
+  if (visitId) {
+    trackVisit(visitId);
+  }
 }

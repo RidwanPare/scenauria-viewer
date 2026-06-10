@@ -1,11 +1,19 @@
-export async function initViewer(sceneUrl: string, visitId?: string): Promise<void> {
-  const container = document.getElementById('viewer-container');
-  if (!container) return;
+export interface ViewerOptions {
+  sceneUrl: string;
+  posterUrl?: string | null;
+  visitId?: string | null;
+}
 
-  container.innerHTML = `
-    <canvas id="viewer-canvas" style="width:100%;height:100%;display:block;"></canvas>
-  `;
+export function mountViewer(container: HTMLElement, opts: ViewerOptions): void {
+  const params = new URLSearchParams();
+  params.set('content', opts.sceneUrl);
+  if (opts.posterUrl) params.set('poster', opts.posterUrl);
 
-  console.log('Viewer initialisé', { sceneUrl, visitId });
-  // Intégration SuperSplat Viewer à implémenter dans la phase suivante
+  const iframe = document.createElement('iframe');
+  iframe.id = 'viewer-frame';
+  iframe.src = `/supersplat?${params.toString()}`;
+  iframe.allow = 'autoplay; fullscreen; xr-spatial-tracking';
+  iframe.setAttribute('allowfullscreen', '');
+
+  container.appendChild(iframe);
 }
